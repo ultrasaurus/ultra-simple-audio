@@ -5,17 +5,35 @@
 <script src="script/soundmanager2.js"></script>
 <style type="text/css">
 .audio {
-  height: 50px;
-  width: 400px;
-  background-color: #333;
+
+  height: 30px;
+  width: 300px;
+  background-color: #ddd;
+  overflow: auto;
 }
-.audio .controls {
-  float: left;
-  width: 40px;
-  height: 40px;
-  margin: 5px;
+
+.audio .play_pause {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: 4px;
   border: 1px solid #fff;
   background-color: #eee;
+}
+
+.audio .play_pause:hover {
+  background-color: #ccf;
+}
+.audio .meter {
+  margin: 10px 10px 10px 34px;
+  width: auto;
+  height: 10px;
+  border: 1px solid #ccc;
+}
+.audio .progress {
+  height: 10px;
+  width: 10%;
+  background-color: #79f;
 }
 </style>
 <script>
@@ -26,14 +44,19 @@ function UltraSimplePlayer() {
   var self = this,
       sm = soundManager; // soundManager instance shorthand
 
-  this.controlTemplate = [
-    "<div class='controls'></div>"
+  this.innerTemplate = [
+   // "<div class='audio-inner'>",
+    "  <div class='play_pause'></div>",
+    "  <div class='meter'>",
+    "    <div class='progress'></div>",
+  //  "  </div>",
+    "</div>"
   ].join("\n");
   
   this.initObject = function(index, elm) {
     console.log('hello '+index);
     console.log(elm);
-    $(elm).append("<div class='controls'></div>" );
+    $(elm).append( self.innerTemplate );
     console.log(elm);
 
   }
