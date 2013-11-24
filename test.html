@@ -5,9 +5,18 @@
 <script src="script/soundmanager2.js"></script>
 <style type="text/css">
 .audio {
-
+  margin: 20px;
   height: 30px;
   width: 300px;
+}
+
+.audio p {
+  margin: 0px;
+  font-size: 10px;
+  padding-left: 4px;
+}
+
+.audio-inner {
   background-color: #ddd;
   overflow: auto;
 }
@@ -32,7 +41,7 @@
 }
 .audio .progress {
   height: 10px;
-  width: 10%;
+  width: 0%;
   background-color: #79f;
 }
 </style>
@@ -45,20 +54,25 @@ function UltraSimplePlayer() {
       sm = soundManager; // soundManager instance shorthand
 
   this.innerTemplate = [
-   // "<div class='audio-inner'>",
+    "<div class='audio-inner'>",
     "  <div class='play_pause'></div>",
     "  <div class='meter'>",
     "    <div class='progress'></div>",
-  //  "  </div>",
-    "</div>"
+    "  </div>",
+    "</div>",
+    "<p>text</p>"
   ].join("\n");
   
   this.initObject = function(index, elm) {
     console.log('hello '+index);
     console.log(elm);
-    $(elm).append( self.innerTemplate );
+    var audio = $(elm);
+    audio.append( self.innerTemplate );
     console.log(elm);
-
+    var url = audio.attr('url');
+    var title = audio.attr('title');
+    audio.find('p').text(title);
+    console.log(url);
   }
   this.objects = $('.audio').each(this.initObject);
 
@@ -80,8 +94,16 @@ soundManager.setup({
 </head>
 <body>
 <h1>Audio Experiment</h1>
-<div class="audio" url="http://ia601002.us.archive.org/0/items/Episode1SarahAndJasonPodcast/Episode%201%20-%20Sarah%20and%20Jason%20Podcast.mp4"/>
+<div class="audio" 
+     url="http://ia601002.us.archive.org/0/items/Episode1SarahAndJasonPodcast/Episode%201%20-%20Sarah%20and%20Jason%20Podcast.mp4" 
+     title="Podcast #1"/>
 </div>
+
+<div class="audio" 
+     url="http://www.schillmania.com/projects/soundmanager2/demo/_mp3/rain.mp3" 
+     title="Rain"/>
+</div>
+
 
 </body>
 </html>
