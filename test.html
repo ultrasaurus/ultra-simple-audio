@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="script/soundmanager2.js"></script>
+<style type="text/css">
+.audio {
+  height: 50px;
+  width: 400px;
+  background-color: #333;
+}
+.audio .controls {
+  float: left;
+  width: 40px;
+  height: 40px;
+  margin: 5px;
+  border: 1px solid #fff;
+  background-color: #eee;
+}
+</style>
+<script>
+
+var player = null;
+
+function UltraSimplePlayer() {
+  var self = this,
+      sm = soundManager; // soundManager instance shorthand
+
+  this.controlTemplate = [
+    "<div class='controls'></div>"
+  ].join("\n");
+  
+  this.initObject = function(index, elm) {
+    console.log('hello '+index);
+    console.log(elm);
+    $(elm).append("<div class='controls'></div>" );
+    console.log(elm);
+
+  }
+  this.objects = $('.audio').each(this.initObject);
+
+
+}
+
+soundManager.setup({
+  // where to find flash audio SWFs, as needed
+  url: 'swf',
+  // optional: prefer HTML5 over Flash for MP3/MP4
+  preferFlash: false,
+  onready: function() {
+    console.log('ready')
+    // SM2 is ready to play audio!
+    player = new UltraSimplePlayer();
+  }
+});
+</script>
+</head>
+<body>
+<h1>Audio Experiment</h1>
+<div class="audio" url="http://ia601002.us.archive.org/0/items/Episode1SarahAndJasonPodcast/Episode%201%20-%20Sarah%20and%20Jason%20Podcast.mp4"/>
+</div>
+
+</body>
+</html>
