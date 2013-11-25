@@ -50,8 +50,10 @@
 var player = null;
 
 function UltraSimplePlayer() {
-  var self = this,
-      sm = soundManager; // soundManager instance shorthand
+  var self = this;
+  this.sm = soundManager, // soundManager instance shorthand
+  this.current_sound = null;
+  this.sounds = [];
 
   this.innerTemplate = [
     "<div class='audio-inner'>",
@@ -69,20 +71,35 @@ function UltraSimplePlayer() {
     audio.append( self.innerTemplate );
     var url = audio.attr('url');
     var title = audio.attr('title');
-    var thisSound = null;
 
     audio.find('p').text(title);
 
     audio.find('.play_pause').click(function () {
-      console.log("play: "+url);
-      if (thisSound == null) {
-        thisSound = sm.createSound({url:url});
-      }
-      thisSound.play();
+      if (self.current_sound && self.current_sound.playState == 1) {
+        self.current_sound.stop();
+      } else {    
+        console.log("play: "+url);
+        var soundIndex = audio.data('sound_index');
+        console.log('soundIndex='+soundIndex);
+        if (soundIndex == undefined) {
+          var newSound = self.sm.createSound({url:url,
+              whileplaying:self.whileplaying});
+          soundIndex = self.sounds.length;
+          audio.data('sound_index', soundIndex);
+          self.sounds[soundIndex] = newSound;
+        } 
+        self.current_sound = self.sounds[soundIndex];
+
+        self.current_sound.play();
+      } 
     })
   }
   this.objects = $('.audio').each(this.initObject);
+  this.whileplaying = function() {
+    console.log(' playing, '+self.current_sound.position+' of '+self.current_sound.duration);
+    var percent_done = self.current_sound.position / self.current_sound.duration * 100;
 
+  }
 
 }
 
