@@ -65,14 +65,21 @@ function UltraSimplePlayer() {
   
   this.initObject = function(index, elm) {
     console.log('hello '+index);
-    console.log(elm);
     var audio = $(elm);
     audio.append( self.innerTemplate );
-    console.log(elm);
     var url = audio.attr('url');
     var title = audio.attr('title');
+    var thisSound = null;
+
     audio.find('p').text(title);
-    console.log(url);
+
+    audio.find('.play_pause').click(function () {
+      console.log("play: "+url);
+      if (thisSound == null) {
+        thisSound = sm.createSound({url:url});
+      }
+      thisSound.play();
+    })
   }
   this.objects = $('.audio').each(this.initObject);
 
