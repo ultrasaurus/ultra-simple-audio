@@ -21,18 +21,24 @@
   overflow: auto;
 }
 
-.audio .play_pause {
+.audio .play-pause {
   position: absolute;
   width: 20px;
   height: 20px;
   margin: 4px;
   border: 1px solid #fff;
   background-color: #eee;
+  background: url("images/sprite20.png") 0 0 no-repeat;  
 }
 
-.audio .play_pause:hover {
+.audio .play-pause:hover {
   background-color: #ccf;
 }
+
+.audio .playing {
+  background: url("images/sprite20.png") -20px 0 no-repeat
+}
+
 .audio .meter {
   margin: 10px 10px 10px 34px;
   width: auto;
@@ -57,7 +63,7 @@ function UltraSimplePlayer() {
 
   this.innerTemplate = [
     "<div class='audio-inner'>",
-    "  <div class='play_pause'></div>",
+    "  <div class='play-pause'></div>",
     "  <div class='meter'>",
     "    <div class='progress'></div>",
     "  </div>",
@@ -74,7 +80,15 @@ function UltraSimplePlayer() {
 
     audio.find('p').text(title);
 
-    audio.find('.play_pause').click(function () {
+    audio.find('.play-pause').click(function(e) {
+      
+      if ($(this).hasClass('playing')) {
+        console.log('-----------------playing');
+        $(this).removeClass('playing');
+        
+      } else {
+        $(this).addClass('playing');
+      }
       if (self.current_sound && self.current_sound.playState == 1) {
         self.current_sound.stop();
       } else {    
