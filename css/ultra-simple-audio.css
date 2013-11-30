@@ -1,0 +1,61 @@
+
+
+.audio {
+  margin: 20px;
+  height: 30px;
+  width: 300px;
+}
+
+.audio p {
+  margin: 0px;
+  font-size: 10px;
+  padding-left: 4px;
+}
+
+.audio-inner {
+  position: relative;
+  background-color: #ddd;
+  overflow: auto;
+}
+
+.audio .play-pause {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: 4px;
+  border: 1px solid #fff;
+  background-color: #eee;
+  background: url("../images/sprite20.png") 0 0 no-repeat;  
+}
+
+.audio .play-pause:hover {
+  background-color: #ccf;
+}
+
+.audio.playing .play-pause {
+  background: url("../images/sprite20.png") -20px 0 no-repeat
+}
+
+.audio .meter {
+  margin: 10px 74px 10px 34px;
+  width: auto;
+  height: 10px;
+  border: 1px solid #ccc;
+}
+
+.audio .progress {
+  height: 10px;
+  width: 0%;
+  background-color: #79f;
+}
+
+.audio .time {
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: sans-serif;
+  font-size: 11px;
+}
+
+
