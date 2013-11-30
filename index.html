@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="script/soundmanager2.js"></script>
+<style type="text/css">
+.audio {
+  margin: 20px;
+  height: 30px;
+  width: 300px;
+}
+
+.audio p {
+  margin: 0px;
+  font-size: 10px;
+  padding-left: 4px;
+}
+
+.audio-inner {
+  background-color: #ddd;
+  overflow: auto;
+}
+
+.audio .play-pause {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  margin: 4px;
+  border: 1px solid #fff;
+  background-color: #eee;
+  background: url("images/sprite20.png") 0 0 no-repeat;  
+}
+
+.audio .play-pause:hover {
+  background-color: #ccf;
+}
+
+.audio.playing .play-pause {
+  background: url("images/sprite20.png") -20px 0 no-repeat
+}
+
+.audio .meter {
+  margin: 10px 10px 10px 34px;
+  width: auto;
+  height: 10px;
+  border: 1px solid #ccc;
+}
+.audio .progress {
+  height: 10px;
+  width: 0%;
+  background-color: #79f;
+}
+</style>
+<script>
+
+var player = null;
+
+function UltraSimplePlayer(elm) {
+  var self = this;
+  this.element = elm;
+  this.sound = null;
+  var $audio = $(elm); // jQuery object for the '.audio' element
+
+  // store this instance in the static players array
+  this.index = UltraSimplePlayer.players.length;
+  UltraSimplePlayer.players[this.index] = this;
+
+  // reference the index from the .audio element data
+  $audio.data('audio_index', this.index);
+ 
+  $audio.append( UltraSimplePlayer.innerTemplate );
+  
+  var url = $audio.attr('url');
+  var title = $audio.attr('title');
+  console.log('hello '+this.index+' '+title);
+
+  $audio.find('p').text(title);
+
+  $audio.find('.play-pause').click(function(e) { 
+    var oldSound = UltraSimplePlayer.stop();
+
+    // if this sound was the the one that was stopped, we're done
+    // otherwise, we need to play this sound
+    if ((self.sound == null) || (oldSound != self.sound)) {
+      self.play();      
+    }
+  });
+
+  // create sound object
+  this.createSound = function() {
+    if (self.sound == null) {
+      self.sound = soundManager.createSound({url: url,
+            id: String(self.index),
+            whileplaying: self.whileplaying});
+      self.sound.element = self.element;
+    }
+  } 
+  this.play = function() {
+    if (self.sound == null) {
+      // create the sound when we play it the first time
+      self.createSound();
+    }
+    UltraSimplePlayer.currentSound = self.sound;
+    self.sound.play();
+    console.log('play '+ self.element);
+    $(self.element).addClass('playing'); 
+    
+  }
+  
+  this.whileplaying = function() {
+    var percent_done = self.sound.position / self.sound.duration * 100;
+    console.log('-->' + self.sound.id + ':' + percent_done + '%');
+    $(self.sound.element).find('.progress').width(percent_done + '%');
+  }
+
+}
+UltraSimplePlayer.innerTemplate = [
+    "<div class='audio-inner'>",
+    "  <div class='play-pause'></div>",
+    "  <div class='meter'>",
+    "    <div class='progress'></div>",
+    "  </div>",
+    "</div>",
+    "<p>text</p>"
+  ].join("\n");
+
+// stop the sound that was playing
+// if a sound was stopped, return it
+UltraSimplePlayer.stop = function() {
+  console.log('stop self.currentSound='+this.currentSound);
+  var oldSound = null;
+  if (this.currentSound && this.currentSound.playState == 1) {
+    console.log('---------------> PAUSE '+this.currentSound.id)
+    this.currentSound.pause();
+    $(this.currentSound.element).removeClass('playing');
+    //$('.audio .play-pause').eq(Number(this.currentSound.id)).removeClass('playing');
+    oldSound = this.currentSound;
+    this.currentSound = null;
+  } 
+  return oldSound;
+}
+
+UltraSimplePlayer.setup = function() {
+  UltraSimplePlayer.players = [];
+  UltraSimplePlayer.currentSound = null;
+  $('.audio').each(function(index, elm) {
+     new UltraSimplePlayer(elm);
+  });
+}
+
+soundManager.setup({
+  // where to find flash audio SWFs, as needed
+  url: 'swf',
+  // optional: prefer HTML5 over Flash for MP3/MP4
+  preferFlash: false,
+  onready: function() {
+    console.log('ready')
+    // SM2 is ready to play audio!
+    UltraSimplePlayer.setup();
+  }
+});
+</script>
+</head>
+<body>
+<h1>Audio Experiment</h1>
+<div class="audio" 
+     url="http://ia601002.us.archive.org/0/items/Episode1SarahAndJasonPodcast/Episode%201%20-%20Sarah%20and%20Jason%20Podcast.mp4" 
+     title="Podcast #1"/>
+</div>
+
+<div class="audio" 
+     url="http://www.schillmania.com/projects/soundmanager2/demo/_mp3/rain.mp3" 
+     title="Rain"/>
+</div>
+
+
+</body>
+</html>
