@@ -92,6 +92,7 @@ function UltraSimplePlayer() {
       console.log('---------------> soundIndex='+soundIndex)
 
       if (soundIndex != undefined && self.sounds[soundIndex] == self.current_sound) {
+        console.log('done: '+soundIndex);
         // we're done, user paused this sound
         self.current_sound = null;
       } else {
@@ -101,24 +102,25 @@ function UltraSimplePlayer() {
           var newSound = self.sm.createSound({url: url,
               id: soundIndex,
               whileplaying: self.whileplaying});
+          newSound.element = audio;
           audio.data('sound_index', soundIndex);
           self.sounds[soundIndex] = newSound;
         }
 
         self.current_sound = self.sounds[soundIndex];
 
-          self.current_sound.play();
-          $(this).addClass('playing'); 
-          console.log("play: "+url);
+        self.current_sound.play();
+        $(this).addClass('playing'); 
+        console.log("play: "+url);
           
       } 
     })
   }
   this.objects = $('.audio').each(this.initObject);
   this.whileplaying = function() {
-    console.log(' playing, '+self.current_sound.position+' of '+self.current_sound.duration);
     var percent_done = self.current_sound.position / self.current_sound.duration * 100;
-
+    console.log('-->' + self.current_sound.id + ':' + percent_done + '%');
+    self.current_sound.element.find('.progress').width(percent_done + '%');
   }
 
 }
