@@ -80,31 +80,37 @@ function UltraSimplePlayer() {
 
     audio.find('p').text(title);
 
-    audio.find('.play-pause').click(function(e) {
-      
-      if ($(this).hasClass('playing')) {
-        console.log('-----------------playing');
-        $(this).removeClass('playing');
-        
-      } else {
-        $(this).addClass('playing');
-      }
+    audio.find('.play-pause').click(function(e) { 
+      // stop any sound that was playing
       if (self.current_sound && self.current_sound.playState == 1) {
-        self.current_sound.stop();
-      } else {    
-        console.log("play: "+url);
-        var soundIndex = audio.data('sound_index');
-        console.log('soundIndex='+soundIndex);
+        console.log('---------------> STOP '+self.current_sound.id+typeof(self.current_sound.id))
+        self.current_sound.stop()
+        $('.audio .play-pause').eq(self.current_sound.id).removeClass('playing');
+      } 
+
+      var soundIndex = audio.data('sound_index');
+      console.log('---------------> soundIndex='+soundIndex)
+
+      if (soundIndex != undefined && self.sounds[soundIndex] == self.current_sound) {
+        // we're done, user paused this sound
+        self.current_sound = null;
+      } else {
+        // we need to play this sound
         if (soundIndex == undefined) {
-          var newSound = self.sm.createSound({url:url,
-              whileplaying:self.whileplaying});
           soundIndex = self.sounds.length;
+          var newSound = self.sm.createSound({url: url,
+              id: soundIndex,
+              whileplaying: self.whileplaying});
           audio.data('sound_index', soundIndex);
           self.sounds[soundIndex] = newSound;
-        } 
+        }
+
         self.current_sound = self.sounds[soundIndex];
 
-        self.current_sound.play();
+          self.current_sound.play();
+          $(this).addClass('playing'); 
+          console.log("play: "+url);
+          
       } 
     })
   }
