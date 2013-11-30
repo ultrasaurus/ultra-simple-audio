@@ -83,8 +83,8 @@ function UltraSimplePlayer() {
     audio.find('.play-pause').click(function(e) { 
       // stop any sound that was playing
       if (self.currentSound && self.currentSound.playState == 1) {
-        console.log('---------------> STOP '+self.currentSound.id+typeof(self.currentSound.id))
-        self.currentSound.stop()
+        console.log('---------------> PAUSE '+self.currentSound.id+typeof(self.currentSound.id))
+        self.currentSound.pause()
         $('.audio .play-pause').eq(self.currentSound.id).removeClass('playing');
       } 
 
