@@ -45,6 +45,7 @@
   height: 10px;
   border: 1px solid #ccc;
 }
+
 .audio .progress {
   height: 10px;
   width: 0%;
@@ -91,6 +92,7 @@ function UltraSimplePlayer(elm) {
     if (self.sound == null) {
       self.sound = soundManager.createSound({url: url,
             id: String(self.index),
+            onfinish: self.events.onfinish,
             whileplaying: self.whileplaying});
       self.sound.element = self.element;
     }
@@ -107,6 +109,12 @@ function UltraSimplePlayer(elm) {
     
   }
   
+  this.events = {
+    onfinish: function() {
+      $(self.element).removeClass('playing'); 
+      $(self.sound.element).find('.progress').width('0%');
+    }
+  }
   this.whileplaying = function() {
     var percent_done = self.sound.position / self.sound.duration * 100;
     console.log('-->' + self.sound.id + ':' + percent_done + '%');
