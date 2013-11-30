@@ -82,19 +82,24 @@ function UltraSimplePlayer(elm) {
     // if this sound was the the one that was stopped, we're done
     // otherwise, we need to play this sound
     if ((self.sound == null) || (oldSound != self.sound)) {
- 
-      // first time playing, create sound object
-      if (self.sound == null) {
-        self.sound = soundManager.createSound({url: url,
-              id: String(self.index),
-              whileplaying: self.whileplaying});
-        self.sound.element = self.element;
-      }
       self.play();      
     }
   });
 
+  // create sound object
+  this.createSound = function() {
+    if (self.sound == null) {
+      self.sound = soundManager.createSound({url: url,
+            id: String(self.index),
+            whileplaying: self.whileplaying});
+      self.sound.element = self.element;
+    }
+  } 
   this.play = function() {
+    if (self.sound == null) {
+      // create the sound when we play it the first time
+      self.createSound();
+    }
     UltraSimplePlayer.currentSound = self.sound;
     self.sound.play();
     console.log('play '+ self.element);
