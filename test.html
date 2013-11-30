@@ -35,7 +35,7 @@
   background-color: #ccf;
 }
 
-.audio .playing {
+.audio.playing .play-pause {
   background: url("images/sprite20.png") -20px 0 no-repeat
 }
 
@@ -55,13 +55,72 @@
 
 var player = null;
 
-function UltraSimplePlayer() {
+function UltraSimplePlayer(elm) {
   var self = this;
-  this.sm = soundManager, // soundManager instance shorthand
-  this.currentSound = null;
-  this.sounds = [];
+  this.element = elm;
+  this.sound = null;
+  var $audio = $(elm); // jQuery object for the '.audio' element
 
-  this.innerTemplate = [
+  // store this instance in the static players array
+  this.index = UltraSimplePlayer.players.length;
+  UltraSimplePlayer.players[this.index] = this;
+
+  // reference the index from the .audio element data
+  $audio.data('audio_index', this.index);
+ 
+  $audio.append( UltraSimplePlayer.innerTemplate );
+  
+  var url = $audio.attr('url');
+  var title = $audio.attr('title');
+  console.log('hello '+this.index+' '+title);
+
+  $audio.find('p').text(title);
+
+  $audio.find('.play-pause').click(function(e) { 
+    console.log('click');
+    var oldSound = UltraSimplePlayer.stop();
+    console.log('oldSound='+oldSound);
+    console.log('self.sound='+self.sound);
+
+    // if this sound was the the one that was stopped, we're done
+    // otherwise, we need to play this sound
+    if ((self.sound == null) || (oldSound != self.sound)) {
+      console.log('need to play');
+      var index = $audio.data('audio_index');
+      console.log('---------------> audio_index='+index)
+
+      if (index == undefined) {
+        console.log('unexpected undefined index');
+        return;
+      }
+      
+      // first time playing, create sound object
+      if (self.sound == null) {
+        self.sound = soundManager.createSound({url: url,
+              id: String(index),
+              whileplaying: self.whileplaying});
+        self.sound.element = self.element;
+      }
+      self.play();      
+    }
+  });
+
+  this.play = function() {
+    UltraSimplePlayer.currentSound = self.sound;
+    self.sound.play();
+    console.log('play '+ self.element);
+    $(self.element).addClass('playing'); 
+    
+  }
+  
+  this.whileplaying = function() {
+    var percent_done = self.sound.position / self.sound.duration * 100;
+    console.log('-->' + self.sound.id + ':' + percent_done + '%');
+    $(self.sound.element).find('.progress').width(percent_done + '%');
+  }
+
+}
+UltraSimplePlayer.innerTemplate = [
     "<div class='audio-inner'>",
     "  <div class='play-pause'></div>",
     "  <div class='meter'>",
@@ -70,59 +129,29 @@ function UltraSimplePlayer() {
     "</div>",
     "<p>text</p>"
   ].join("\n");
-  
-  this.initObject = function(index, elm) {
-    console.log('hello '+index);
-    var audio = $(elm);
-    audio.append( self.innerTemplate );
-    var url = audio.attr('url');
-    var title = audio.attr('title');
 
-    audio.find('p').text(title);
+// stop the sound that was playing
+// if a sound was stopped, return it
+UltraSimplePlayer.stop = function() {
+  console.log('stop self.currentSound='+this.currentSound);
+  var oldSound = null;
+  if (this.currentSound && this.currentSound.playState == 1) {
+    console.log('---------------> PAUSE '+this.currentSound.id)
+    this.currentSound.pause();
+    $(this.currentSound.element).removeClass('playing');
+    //$('.audio .play-pause').eq(Number(this.currentSound.id)).removeClass('playing');
+    oldSound = this.currentSound;
+    this.currentSound = null;
+  } 
+  return oldSound;
+}
 
-    audio.find('.play-pause').click(function(e) { 
-      // stop any sound that was playing
-      if (self.currentSound && self.currentSound.playState == 1) {
-        console.log('---------------> PAUSE '+self.currentSound.id+typeof(self.currentSound.id))
-        self.currentSound.pause()
-        $('.audio .play-pause').eq(self.currentSound.id).removeClass('playing');
-      } 
-
-      var soundIndex = audio.data('sound_index');
-      console.log('---------------> soundIndex='+soundIndex)
-
-      if (soundIndex != undefined && self.sounds[soundIndex] == self.currentSound) {
-        console.log('done: '+soundIndex);
-        // we're done, user paused this sound
-        self.currentSound = null;
-      } else {
-        // we need to play this sound
-        if (soundIndex == undefined) {
-          soundIndex = self.sounds.length;
-          var newSound = self.sm.createSound({url: url,
-              id: soundIndex,
-              whileplaying: self.whileplaying});
-          newSound.element = audio;
-          audio.data('sound_index', soundIndex);
-          self.sounds[soundIndex] = newSound;
-        }
-
-        self.currentSound = self.sounds[soundIndex];
-
-        self.currentSound.play();
-        $(this).addClass('playing'); 
-        console.log("play: "+url);
-          
-      } 
-    })
-  }
-  this.objects = $('.audio').each(this.initObject);
-  this.whileplaying = function() {
-    var percent_done = self.currentSound.position / self.currentSound.duration * 100;
-    console.log('-->' + self.currentSound.id + ':' + percent_done + '%');
-    self.currentSound.element.find('.progress').width(percent_done + '%');
-  }
-
+UltraSimplePlayer.setup = function() {
+  UltraSimplePlayer.players = [];
+  UltraSimplePlayer.currentSound = null;
+  $('.audio').each(function(index, elm) {
+     new UltraSimplePlayer(elm);
+  });
 }
 
 soundManager.setup({
@@ -133,7 +162,7 @@ soundManager.setup({
   onready: function() {
     console.log('ready')
     // SM2 is ready to play audio!
-    player = new UltraSimplePlayer();
+    UltraSimplePlayer.setup();
   }
 });
 </script>
