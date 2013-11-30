@@ -58,7 +58,7 @@ var player = null;
 function UltraSimplePlayer() {
   var self = this;
   this.sm = soundManager, // soundManager instance shorthand
-  this.current_sound = null;
+  this.currentSound = null;
   this.sounds = [];
 
   this.innerTemplate = [
@@ -82,19 +82,19 @@ function UltraSimplePlayer() {
 
     audio.find('.play-pause').click(function(e) { 
       // stop any sound that was playing
-      if (self.current_sound && self.current_sound.playState == 1) {
-        console.log('---------------> STOP '+self.current_sound.id+typeof(self.current_sound.id))
-        self.current_sound.stop()
-        $('.audio .play-pause').eq(self.current_sound.id).removeClass('playing');
+      if (self.currentSound && self.currentSound.playState == 1) {
+        console.log('---------------> STOP '+self.currentSound.id+typeof(self.currentSound.id))
+        self.currentSound.stop()
+        $('.audio .play-pause').eq(self.currentSound.id).removeClass('playing');
       } 
 
       var soundIndex = audio.data('sound_index');
       console.log('---------------> soundIndex='+soundIndex)
 
-      if (soundIndex != undefined && self.sounds[soundIndex] == self.current_sound) {
+      if (soundIndex != undefined && self.sounds[soundIndex] == self.currentSound) {
         console.log('done: '+soundIndex);
         // we're done, user paused this sound
-        self.current_sound = null;
+        self.currentSound = null;
       } else {
         // we need to play this sound
         if (soundIndex == undefined) {
@@ -107,9 +107,9 @@ function UltraSimplePlayer() {
           self.sounds[soundIndex] = newSound;
         }
 
-        self.current_sound = self.sounds[soundIndex];
+        self.currentSound = self.sounds[soundIndex];
 
-        self.current_sound.play();
+        self.currentSound.play();
         $(this).addClass('playing'); 
         console.log("play: "+url);
           
@@ -118,9 +118,9 @@ function UltraSimplePlayer() {
   }
   this.objects = $('.audio').each(this.initObject);
   this.whileplaying = function() {
-    var percent_done = self.current_sound.position / self.current_sound.duration * 100;
-    console.log('-->' + self.current_sound.id + ':' + percent_done + '%');
-    self.current_sound.element.find('.progress').width(percent_done + '%');
+    var percent_done = self.currentSound.position / self.currentSound.duration * 100;
+    console.log('-->' + self.currentSound.id + ':' + percent_done + '%');
+    self.currentSound.element.find('.progress').width(percent_done + '%');
   }
 
 }
