@@ -73,7 +73,6 @@ function UltraSimplePlayer(elm) {
   
   var url = $audio.attr('url');
   var title = $audio.attr('title');
-  console.log('hello '+this.index+' '+title);
 
   $audio.find('p').text(title);
 
@@ -104,7 +103,6 @@ function UltraSimplePlayer(elm) {
     }
     UltraSimplePlayer.currentSound = self.sound;
     self.sound.play();
-    console.log('play '+ self.element);
     $(self.element).addClass('playing'); 
     
   }
@@ -117,7 +115,6 @@ function UltraSimplePlayer(elm) {
   }
   this.whileplaying = function() {
     var percent_done = self.sound.position / self.sound.duration * 100;
-    console.log('-->' + self.sound.id + ':' + percent_done + '%');
     $(self.sound.element).find('.progress').width(percent_done + '%');
   }
 
@@ -135,10 +132,8 @@ UltraSimplePlayer.innerTemplate = [
 // stop the sound that was playing
 // if a sound was stopped, return it
 UltraSimplePlayer.stop = function() {
-  console.log('stop self.currentSound='+this.currentSound);
   var oldSound = null;
   if (this.currentSound && this.currentSound.playState == 1) {
-    console.log('---------------> PAUSE '+this.currentSound.id)
     this.currentSound.pause();
     $(this.currentSound.element).removeClass('playing');
     //$('.audio .play-pause').eq(Number(this.currentSound.id)).removeClass('playing');
@@ -162,7 +157,6 @@ soundManager.setup({
   // optional: prefer HTML5 over Flash for MP3/MP4
   preferFlash: false,
   onready: function() {
-    console.log('ready')
     // SM2 is ready to play audio!
     UltraSimplePlayer.setup();
   }
