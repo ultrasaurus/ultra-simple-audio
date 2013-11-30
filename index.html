@@ -17,6 +17,7 @@
 }
 
 .audio-inner {
+  position: relative;
   background-color: #ddd;
   overflow: auto;
 }
@@ -40,7 +41,7 @@
 }
 
 .audio .meter {
-  margin: 10px 10px 10px 34px;
+  margin: 10px 74px 10px 34px;
   width: auto;
   height: 10px;
   border: 1px solid #ccc;
@@ -50,6 +51,15 @@
   height: 10px;
   width: 0%;
   background-color: #79f;
+}
+
+.audio .time {
+  display: block;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-family: sans-serif;
+  font-size: 11px;
 }
 </style>
 <script>
@@ -106,6 +116,20 @@ function UltraSimplePlayer(elm) {
     $(self.element).addClass('playing'); 
     
   }
+  // millisecond to time string conversion
+  this.ms2time = function(ms) {
+    var seconds = 0;
+    var total_seconds = Math.round( ms / 1000 );
+    var minutes = Math.round ( total_seconds / 60 );
+    if (minutes == 0) seconds = total_seconds;
+    else seconds = total_seconds % minutes;
+    if (seconds < 10) seconds = '0' + seconds;
+    return minutes + ":" + seconds
+  }
+  this.updateTime = function() {
+    $(self.element).find('.now').text(this.ms2time(self.sound.position));
+    $(self.element).find('.duration').text(this.ms2time(self.sound.duration));
+  }
   
   this.events = {
     onfinish: function() {
@@ -116,6 +140,7 @@ function UltraSimplePlayer(elm) {
   this.whileplaying = function() {
     var percent_done = self.sound.position / self.sound.duration * 100;
     $(self.sound.element).find('.progress').width(percent_done + '%');
+    self.updateTime();
   }
 
 }
@@ -124,6 +149,11 @@ UltraSimplePlayer.innerTemplate = [
     "  <div class='play-pause'></div>",
     "  <div class='meter'>",
     "    <div class='progress'></div>",
+    "  </div>",
+    "  <div class='time'>",
+    "     <span class='now'>--</span>",
+    "      / ",
+    "     <span class='duration'>--</span>",
     "  </div>",
     "</div>",
     "<p>text</p>"
