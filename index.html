@@ -135,6 +135,7 @@ function UltraSimplePlayer(elm) {
     onfinish: function() {
       $(self.element).removeClass('playing'); 
       $(self.sound.element).find('.progress').width('0%');
+      self.updateTime();
     }
   }
   this.whileplaying = function() {
