@@ -77,27 +77,16 @@ function UltraSimplePlayer(elm) {
   $audio.find('p').text(title);
 
   $audio.find('.play-pause').click(function(e) { 
-    console.log('click');
     var oldSound = UltraSimplePlayer.stop();
-    console.log('oldSound='+oldSound);
-    console.log('self.sound='+self.sound);
 
     // if this sound was the the one that was stopped, we're done
     // otherwise, we need to play this sound
     if ((self.sound == null) || (oldSound != self.sound)) {
-      console.log('need to play');
-      var index = $audio.data('audio_index');
-      console.log('---------------> audio_index='+index)
-
-      if (index == undefined) {
-        console.log('unexpected undefined index');
-        return;
-      }
-      
+ 
       // first time playing, create sound object
       if (self.sound == null) {
         self.sound = soundManager.createSound({url: url,
-              id: String(index),
+              id: String(self.index),
               whileplaying: self.whileplaying});
         self.sound.element = self.element;
       }
