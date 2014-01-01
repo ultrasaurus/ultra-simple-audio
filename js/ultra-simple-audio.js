@@ -23,6 +23,15 @@ jQuery(document).ready(function ($) {
 
     var url = $audio.attr('url');
     var title = $audio.attr('title');
+    var ga = $audio.attr('ga');
+    var ga_increment = 0;
+    if (typeof(ga) == 'undefined') {
+      ga = [];
+    } else {
+      ga = ga.split(",");
+      //console.log("====> " + ga.join(','));
+      ga_increment = ga[ga.length-1];  // repeat progress by last time
+    }
 
     $audio.find('p').text(title);
 
@@ -44,6 +53,34 @@ jQuery(document).ready(function ($) {
       self.setTimeFraction(offset/width);
     });
 
+    //----------------------- methods ---------------------
+    this.send_analytics_event = function(name, param1, param2) {
+      if (typeof(_gaq) == 'undefined') {
+        console.log("looks like you don't have google analytics set up on this page")
+      } else {
+        _gaq.push(['_trackEvent', 'ultra-audio', name, param1, param2]);
+      }
+    }
+    this.analytics = function(event_name) {
+      // console.log('analytics event===> '+event_name)
+      this.send_analytics_event(event_name, title, this.sound.position);
+    }
+    this.analytics_progress = function() {
+      var time = ga[0];          // this is in minutes
+      check = time * 1000 * 60;  // now it's in milliseconds
+
+      if (this.sound.position > check) {
+        // console.log('analytics TIME===> '+ time + "    " + title); 
+        this.send_analytics_event('time', title, time);
+        ga.shift();
+        //console.log('ga='+ga.join(','));
+        
+        if (ga.length == 0) {
+          ga[0] = check + ga_increment; 
+        }
+      }
+    }
+
     // create sound object
     this.createSound = function() {
       if (self.sound == null) {
@@ -62,7 +99,11 @@ jQuery(document).ready(function ($) {
       UltraSimplePlayer.currentSound = self.sound;
       self.sound.play();
       $(self.element).addClass('playing');
-
+      if (this.sound.position == 0) {
+        this.analytics('start');
+      } else {
+        this.analytics('play');
+      }
     }
     // millisecond to time string conversion
     this.ms2time = function(ms) {
@@ -79,6 +120,7 @@ jQuery(document).ready(function ($) {
       $(self.element).find('.duration').text(this.ms2time(self.sound.duration));
     }
     this.setTimeMilliseconds = function(ms) {
+      this.analytics('seek');      
       this.sound.setPosition(ms);
     }
     this.setTimeFraction = function(fraction) {
@@ -90,12 +132,14 @@ jQuery(document).ready(function ($) {
         $(self.element).removeClass('playing');
         $(self.sound.element).find('.progress').width('0%');
         self.updateTimeDisplay();
+        this.analytics('finish');              
       }
     }
     this.whileplaying = function() {
       var percent_done = self.sound.position / self.sound.duration * 100;
       $(self.sound.element).find('.progress').width(percent_done + '%');
       self.updateTimeDisplay();
+      self.analytics_progress();                    
     }
 
   }
