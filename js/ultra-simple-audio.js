@@ -29,7 +29,7 @@ jQuery(document).ready(function ($) {
       ga = [];
     } else {
       ga = ga.split(",");
-      //console.log("====> " + ga.join(','));
+      console.log("====> ga=" + ga.join(','));
       ga_increment = ga[ga.length-1];  // repeat progress by last time
     }
 
@@ -62,15 +62,15 @@ jQuery(document).ready(function ($) {
       }
     }
     this.analytics = function(event_name) {
-      // console.log('analytics event===> '+event_name)
+      console.log('analytics event===> '+event_name)
       this.send_analytics_event(event_name, title, this.sound.position);
     }
     this.analytics_progress = function() {
-      var time = ga[0];          // this is in minutes
+      var time = Number(ga[0]);          // this is in minutes
       check = time * 1000 * 60;  // now it's in milliseconds
 
       if (this.sound.position > check) {
-        // console.log('analytics TIME===> '+ time + "    " + title); 
+        console.log('analytics TIME===> '+ time + "    " + title); 
         this.send_analytics_event('time', title, time);
         ga.shift();
         //console.log('ga='+ga.join(','));
@@ -111,7 +111,7 @@ jQuery(document).ready(function ($) {
       var total_seconds = Math.round( ms / 1000 );
       var minutes = Math.round ( total_seconds / 60 );
       if (minutes == 0) seconds = total_seconds;
-      else seconds = total_seconds % minutes;
+      else seconds = total_seconds % 60;
       if (seconds < 10) seconds = '0' + seconds;
       return minutes + ":" + seconds
     }

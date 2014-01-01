@@ -46,8 +46,9 @@ function ultra_audio_shortcode_handler( $atts ) {
 	//return "url = {$url}";
   $output = <<<EOS
 <div class='audio' url='{$url}'
+                   ga='1,5,10'
                    title='{$title}'
-                   ga='1,5,10'/> 
+                   /> 
 </div>
 EOS;
 
