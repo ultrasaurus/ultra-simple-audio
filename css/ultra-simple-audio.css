@@ -41,6 +41,7 @@
   width: auto;
   height: 10px;
   border: 1px solid #ccc;
+  position: relative;
 }
 
 .audio .progress {

@@ -7,11 +7,12 @@ function UltraSimplePlayer(elm) {
   this.sound = null;
   var $audio = $(elm); // jQuery object for the '.audio' element
 
-  // store this instance in the static players array
+  // we need a static players array, so we can stop/update other players
+  // when we interact with another player on the page, just as pause/play
   this.index = UltraSimplePlayer.players.length;
   UltraSimplePlayer.players[this.index] = this;
 
-  // reference the index from the .audio element data
+  // Keep track of this player's index for easy reference from interactive events
   $audio.data('audio_index', this.index);
  
   $audio.append( UltraSimplePlayer.innerTemplate );
@@ -29,6 +30,14 @@ function UltraSimplePlayer(elm) {
     if ((self.sound == null) || (oldSound != self.sound)) {
       self.play();      
     }
+  });
+
+  // click anywhere on the meter to set the time of the sound to that point
+  $audio.find('.meter').click(function(e) {
+    console.log($audio);
+    var offset = e.offsetX,
+        width = $(this).width();
+    self.setTimeFraction(offset/width);
   });
 
   // create sound object
@@ -61,22 +70,28 @@ function UltraSimplePlayer(elm) {
     if (seconds < 10) seconds = '0' + seconds;
     return minutes + ":" + seconds
   }
-  this.updateTime = function() {
+  this.updateTimeDisplay = function() {
     $(self.element).find('.now').text(this.ms2time(self.sound.position));
     $(self.element).find('.duration').text(this.ms2time(self.sound.duration));
+  }
+  this.setTimeMilliseconds = function(ms) {
+    this.sound.setPosition(ms);
+  }
+  this.setTimeFraction = function(fraction) {
+    this.setTimeMilliseconds(fraction * self.sound.duration);
   }
   
   this.events = {
     onfinish: function() {
       $(self.element).removeClass('playing'); 
       $(self.sound.element).find('.progress').width('0%');
-      self.updateTime();
+      self.updateTimeDisplay();
     }
   }
   this.whileplaying = function() {
     var percent_done = self.sound.position / self.sound.duration * 100;
     $(self.sound.element).find('.progress').width(percent_done + '%');
-    self.updateTime();
+    self.updateTimeDisplay();
   }
 
 }
