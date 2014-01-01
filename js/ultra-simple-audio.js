@@ -24,20 +24,20 @@ jQuery(document).ready(function ($) {
     var url = $audio.attr('url');
     var title = $audio.attr('title');
     var ga = $audio.attr('ga');
-    var ga_increment = 0;
-    if (typeof(ga) == 'undefined') {
-      ga = [];
-    } else {
-      ga = ga.split(",");
-      console.log("====> ga=" + ga.join(','));
-      ga_increment = ga[ga.length-1];  // repeat progress by last time
+    var ga_frequency = 0;
+    var last_time = 0;
+    var timer_start = 0;
+    var incremental_milliseconds = 0;
+    if (typeof(ga) != 'undefined') {
+      ga_frequency = 1;
     }
+    var next_time = ga_frequency; 
 
     $audio.find('p').text(title);
 
     $audio.find('.play-pause').click(function(e) {
       var oldSound = UltraSimplePlayer.stop();
-
+      
       // if this sound was the the one that was stopped, we're done
       // otherwise, we need to play this sound
       if ((self.sound == null) || (oldSound != self.sound)) {
@@ -58,25 +58,42 @@ jQuery(document).ready(function ($) {
       if (typeof(_gaq) == 'undefined') {
         console.log("looks like you don't have google analytics set up on this page")
       } else {
-        _gaq.push(['_trackEvent', 'ultra-audio', name, param1, param2]);
+        _gaq.push(['_trackEvent', 'audio', name, param1, param2]);
       }
     }
+
+    this.send_delta_progress = function() {
+        // note: google adds all values for same event, so we report deltas
+        incremental_milliseconds = Math.round(this.sound.position - timer_start);
+        //console.log('analytics incremental_milliseconds ===> '+incremental_milliseconds);
+        this.send_analytics_event('total_milliseconds', title, incremental_milliseconds);
+        timer_start = this.sound.position;
+    }
+
     this.analytics = function(event_name) {
+      if (event_name == 'start' || event_name == 'play') {
+        timer_start = this.sound.position;
+      } else {
+        this.send_delta_progress();
+      } 
       console.log('analytics event===> '+event_name)
       this.send_analytics_event(event_name, title, this.sound.position);
     }
-    this.analytics_progress = function() {
-      var time = Number(ga[0]);          // this is in minutes
-      check = time * 1000 * 60;  // now it's in milliseconds
 
-      if (this.sound.position > check) {
-        console.log('analytics TIME===> '+ time + "    " + title); 
-        this.send_analytics_event('time', title, time);
-        ga.shift();
-        //console.log('ga='+ga.join(','));
-        
-        if (ga.length == 0) {
-          ga[0] = check + ga_increment; 
+    this.analytics_progress = function() {
+      if (ga_frequency > 0) {
+        var time = next_time;          // this is in minutes
+        check = time * 1000 * 60;      // now it's in milliseconds
+        if (this.sound.position > check) {
+          //console.log('check => '+check);
+          this.send_delta_progress();     
+          var current_minute = Math.floor(this.sound.position / 60000);
+          var additional_time = current_minute - last_time;
+          //console.log('analytics LONGEST TIME===> '+ current_minute + "    " + additional_time); 
+          this.send_analytics_event('longest_time', title, additional_time);
+          last_time = current_minute;
+          next_time = current_minute + ga_frequency;
+
         }
       }
     }
@@ -109,7 +126,7 @@ jQuery(document).ready(function ($) {
     this.ms2time = function(ms) {
       var seconds = 0;
       var total_seconds = Math.round( ms / 1000 );
-      var minutes = Math.round ( total_seconds / 60 );
+      var minutes = Math.floor ( total_seconds / 60 );
       if (minutes == 0) seconds = total_seconds;
       else seconds = total_seconds % 60;
       if (seconds < 10) seconds = '0' + seconds;
@@ -120,8 +137,14 @@ jQuery(document).ready(function ($) {
       $(self.element).find('.duration').text(this.ms2time(self.sound.duration));
     }
     this.setTimeMilliseconds = function(ms) {
-      this.analytics('seek');      
+      if (this.sound.playState == 1) {
+        // simulate a stop / start so that we can track duration of play
+        this.analytics('stop');       
+      }
+      this.analytics('seek'); 
       this.sound.setPosition(ms);
+      if (this.sound.playState == 1) this.analytics('play');       
+      
     }
     this.setTimeFraction = function(fraction) {
       this.setTimeMilliseconds(fraction * self.sound.duration);
@@ -132,7 +155,7 @@ jQuery(document).ready(function ($) {
         $(self.element).removeClass('playing');
         $(self.sound.element).find('.progress').width('0%');
         self.updateTimeDisplay();
-        this.analytics('finish');              
+        self.analytics('finish');
       }
     }
     this.whileplaying = function() {
@@ -167,8 +190,12 @@ jQuery(document).ready(function ($) {
     if (this.currentSound && this.currentSound.playState == 1) {
       this.currentSound.pause();
       $(this.currentSound.element).removeClass('playing');
-      //$('.audio .play-pause').eq(Number(this.currentSound.id)).removeClass('playing');
+
       oldSound = this.currentSound;
+
+      oldPlayer = UltraSimplePlayer.players[Number(oldSound.id)];
+      oldPlayer.analytics('stop');
+      
       this.currentSound = null;
     }
     return oldSound;

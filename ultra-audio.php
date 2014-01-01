@@ -8,7 +8,7 @@ Author URI: http://github.com/ultrasaurus/ultra-simple-audio
 License: MIT  
 */
 
-define('ULTRA_AUDIO_PLUGIN_VERSION', '0.2');
+define('ULTRA_AUDIO_PLUGIN_VERSION', '0.2.1');
 
 add_action('init', 'ultra_audio_init');
 function ultra_audio_init()
@@ -46,7 +46,7 @@ function ultra_audio_shortcode_handler( $atts ) {
 	//return "url = {$url}";
   $output = <<<EOS
 <div class='audio' url='{$url}'
-                   ga='1,5,10'
+                   ga='true'
                    title='{$title}'
                    /> 
 </div>
