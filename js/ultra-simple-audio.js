@@ -138,9 +138,15 @@ jQuery(document).ready(function ($) {
     });
   }
 
+  var swf_path = '';
+  if (typeof(UltraSimplePlayerContext) != 'undefined') {
+    swf_path = UltraSimplePlayerContext['swf_path'];
+  }
+  if (typeof(swf_path) == 'undefined') swf_path = 'swf';
+
   soundManager.setup({
     // where to find flash audio SWFs, as needed
-    url: 'swf',
+    url: swf_path,
     // optional: prefer HTML5 over Flash for MP3/MP4
     preferFlash: false,
     onready: function() {

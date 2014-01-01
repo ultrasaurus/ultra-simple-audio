@@ -14,6 +14,11 @@ add_action('init', 'ultra_audio_init');
 function ultra_audio_init()
 {
 	if (!is_admin()){
+    wp_enqueue_style('ultra_audio',
+                    plugins_url('/css/ultra-simple-audio.css', __FILE__),
+                    ULTRA_AUDIO_PLUGIN_VERSION
+    );
+  
 		wp_enqueue_script('soundmanager2',
                     plugins_url('/js/soundmanager2-nodebug-jsmin.js', __FILE__)
     );
@@ -23,10 +28,11 @@ function ultra_audio_init()
                     ULTRA_AUDIO_PLUGIN_VERSION
     );
 
-    wp_enqueue_style('ultra_audio',
-                    plugins_url('/css/ultra-simple-audio.css', __FILE__),
-                    ULTRA_AUDIO_PLUGIN_VERSION
+    $params = array(
+      'swf_path' => plugins_url('/swf', __FILE__)
     );
+    wp_localize_script( 'ultra_audio', 'UltraSimplePlayerContext', $params );
+
 	}
 }
 
