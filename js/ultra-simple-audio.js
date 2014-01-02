@@ -58,7 +58,7 @@ jQuery(document).ready(function ($) {
       if (typeof(_gaq) == 'undefined') {
         console.log("looks like you don't have google analytics set up on this page")
       } else {
-        _gaq.push(['_trackEvent', 'audio', name, param1, param2]);
+        _gaq.push(['_trackEvent', 'ultra-audio', name, param1, param2]);
       }
     }
 
